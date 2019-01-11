@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import Login from './screens/login/Login'
+import EmployeeList from './screens/employee/EmployeeList';
+import AddForm from './screens/employee/AddForm';
+
 import swal from 'sweetalert';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      userName: 'admin@domain.com',
-      password: 'admin',
       isUserLoggedIn: false,
       isDisplayEmployeeAddForm: false,
       isAddButtonActive: true,
@@ -19,24 +21,9 @@ class App extends Component {
         jobStartDate: ''
       }
     };
-
-    this.onLoginButtonClick = this.onLoginButtonClick.bind(this);
-    this.onLogoutButtonClick = this.onLogoutButtonClick.bind(this);
-    this.onAddEmployeesButtonClick = this.onAddEmployeesButtonClick.bind(this);
-    this.onAddButtonClick = this.onAddButtonClick.bind(this);
-    this.onSaveButtonClick = this.onSaveButtonClick.bind(this);
-
-    this.onUserNameChanged = this.onUserNameChanged.bind(this);
-    this.onPasswordChanged = this.onPasswordChanged.bind(this);
-    this.onFirstNameChanged = this.onFirstNameChanged.bind(this);
-    this.onLastNameChanged = this.onLastNameChanged.bind(this);
-    this.onEmailChanged = this.onEmailChanged.bind(this);
-    this.onSalaryChanged = this.onSalaryChanged.bind(this);
-    this.onJobStartDateChanged = this.onJobStartDateChanged.bind(this);
   }
 
-  onLoginButtonClick() {
-    const { userName, password } = this.state;
+  onLoginButtonClick(userName, password) {
     if (userName === 'admin@domain.com' && password === 'admin') {
       this.setState({
         isUserLoggedIn: true
@@ -61,7 +48,7 @@ class App extends Component {
   }
 
   onAddButtonClick() {
-    const { employeeData, employees } = this.state;
+    const { employees, employeeData } = this.state;
     const employee = { ...employeeData };
     const emptyEmployee = {
       firstName: '',
@@ -78,27 +65,6 @@ class App extends Component {
       isDisplayEmployeeAddForm: false
     })
   }
-
-  onEditButtonClick(index) {
-    const { employees } = this.state;
-    this.setState({
-      updatingIndex: index,
-      employeeData: employees[index],
-      isDisplayEmployeeAddForm: true,
-      isAddButtonActive: false
-    });
-  }
-
-  onDeleteButtonClick(index) {
-    const { employees } = this.state;
-    employees.splice(index, 1);
-
-    this.setState({
-      employees: employees
-    });
-  }
-
-  i = 3;
 
   onSaveButtonClick() {
     const { employees, updatingIndex, employeeData } = this.state;
@@ -119,12 +85,23 @@ class App extends Component {
     });
   }
 
-  onUserNameChanged(e) {
-    this.setState({ userName: e.target.value });
+  onEditButtonClick(index) {
+    const { employees } = this.state;
+    this.setState({
+      updatingIndex: index,
+      employeeData: employees[index],
+      isDisplayEmployeeAddForm: true,
+      isAddButtonActive: false
+    });
   }
 
-  onPasswordChanged(e) {
-    this.setState({ password: e.target.value });
+  onDeleteButtonClick(index) {
+    const { employees } = this.state;
+    employees.splice(index, 1);
+
+    this.setState({
+      employees: employees
+    });
   }
 
   onFirstNameChanged(e) {
@@ -158,61 +135,30 @@ class App extends Component {
   }
 
   renderAddEmployeeForm() {
-    const { employeeData, isAddButtonActive } = this.state;
-    return (
-      <div>
-        {isAddButtonActive ? <h3>Add Employee</h3> : <h3>Update Employee</h3>}
-
-        <input onChange={this.onFirstNameChanged} placeholder="First name" value={employeeData.firstName} />
-        <input onChange={this.onLastNameChanged} placeholder="Last name" value={employeeData.lastName} />
-        <input onChange={this.onEmailChanged} placeholder="Email" value={employeeData.email} />
-        <input onChange={this.onSalaryChanged} placeholder="Salary" value={employeeData.salary} />
-        <input onChange={this.onJobStartDateChanged} placeholder="Job Start Date" value={employeeData.jobStartDate} />
-
-        {
-          isAddButtonActive ?
-            <button onClick={this.onAddButtonClick}>Add</button> :
-            <button onClick={this.onSaveButtonClick}>Save</button>
-        }
-      </div>
-    )
+    return <AddForm
+      isAddButtonActive={this.state.isAddButtonActive}
+      employeeData={this.state.employeeData}
+      onAddButtonClick={() => this.onAddButtonClick()}
+      onSaveButtonClick={() => this.onSaveButtonClick()}
+      onFirstNameChanged={(e) => this.onFirstNameChanged(e)}
+      onLastNameChanged={(e) => this.onLastNameChanged(e)}
+      onEmailChanged={(e) => this.onEmailChanged(e)}
+      onSalaryChanged={(e) => this.onSalaryChanged(e)}
+      onJobStartDateChanged={(e) => this.onJobStartDateChanged(e)}
+    />
   }
 
   renderEmployees() {
-    const { employees } = this.state;
-    return (
-      <div>
-        {employees.length ? <h3>Employees list</h3> : <h3>Employee list is empty</h3>}
-        <ul>
-          {employees.map((employee, index) => {
-            return <div>
-              <h5>User {index + 1}</h5>
-              <button onClick={this.onEditButtonClick.bind(this, index)}>Edit</button>
-              <button onClick={this.onDeleteButtonClick.bind(this, index)}>Delete</button>
-
-              <li>First Name: {employee.firstName}</li>
-              <li>Last Name: {employee.lastName}</li>
-              <li>Email: {employee.email}</li>
-              <li>Salary: {employee.salary}</li>
-              <li>Job Start Date: {employee.jobStartDate}</li>
-            </div>
-          })}
-        </ul>
-        <button onClick={this.onAddEmployeesButtonClick}>Add Employee</button>
-      </div>
-    )
+    return <EmployeeList
+      employees={this.state.employees}
+      onEditButtonClick={(index) => this.onEditButtonClick(index)}
+      onDeleteButtonClick={(index) => this.onDeleteButtonClick(index)}
+      onAddEmployeesButtonClick={() => this.onAddEmployeesButtonClick()}
+    />
   }
 
   renderLogin() {
-    const { userName, password } = this.state;
-    return (
-      <div>
-        <input onChange={this.onUserNameChanged} placeholder="First Name" value={userName} />
-        <input onChange={this.onPasswordChanged} placeholder="Last Name" value={password} />
-
-        <button onClick={this.onLoginButtonClick}>Login</button>
-      </div>
-    )
+    return <Login onLoginButtonClick={(userName, password) => this.onLoginButtonClick(userName, password)} />
   }
 
   render() {
@@ -226,7 +172,7 @@ class App extends Component {
         {/* when the user is logged in and Add button is clicked, show the Add Form */}
         {isUserLoggedIn && isDisplayEmployeeAddForm && this.renderAddEmployeeForm()}
 
-        {isUserLoggedIn && <button onClick={this.onLogoutButtonClick}>Logout</button>}
+        {isUserLoggedIn && <button onClick={() => this.onLogoutButtonClick()}>Logout</button>}
       </div >
     );
   }
