@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Login from './screens/login/Login'
 import EmployeeList from './screens/employee/EmployeeList';
 import AddForm from './screens/employee/AddForm';
+import { addEmployee, editEmployee, deleteEmployee, getEmployees } from './config/app'
 
 import swal from 'sweetalert';
 
@@ -21,6 +22,14 @@ class App extends Component {
         jobStartDate: ''
       }
     };
+  }
+
+  componentDidMount() {
+    getEmployees().then(
+      res => this.setState({
+        employees: res
+      })
+    );
   }
 
   onLoginButtonClick(userName, password) {
@@ -59,6 +68,7 @@ class App extends Component {
     }
 
     employees.push(employee);
+    addEmployee(employee);
     this.setState({
       employeeData: emptyEmployee,
       employees: employees,
@@ -68,7 +78,6 @@ class App extends Component {
 
   onSaveButtonClick() {
     const { employees, updatingIndex, employeeData } = this.state;
-    employees[updatingIndex] = employeeData;
     const emptyEmployee = {
       firstName: '',
       lastName: '',
@@ -77,6 +86,8 @@ class App extends Component {
       jobStartDate: ''
     }
 
+    employees[updatingIndex] = employeeData;
+    editEmployee(employeeData, updatingIndex);
     this.setState({
       employees: employees,
       employeeData: emptyEmployee,
@@ -97,8 +108,9 @@ class App extends Component {
 
   onDeleteButtonClick(index) {
     const { employees } = this.state;
-    employees.splice(index, 1);
 
+    employees.splice(index, 1);
+    deleteEmployee(index)
     this.setState({
       employees: employees
     });
